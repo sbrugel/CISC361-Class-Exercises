@@ -1,0 +1,5 @@
+1) 0.344 on all runs
+2) 0.328, 0.297, 0.281
+3) The multi-threaded program takes slightly less time to run.
+4) With less elements (say, 500), it takes less time for both to run. In fact, it takes almost the exact *same* time to run both versions. Also, having more threads on the multi-thread file with the original number of elements does not seem to change the runtime.
+5) That's this file! :)
