@@ -4,8 +4,8 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <pthread.h>
-#define MAX_NO_OF_THREADS 10
-#define MAX_NO_OF_ELEMENTS 100000000
+#define MAX_NO_OF_THREADS 4
+#define MAX_NO_OF_ELEMENTS 900000
 
 typedef struct arg_data
 {
@@ -35,7 +35,7 @@ void *worker_sum(void *arg)
     printf("Here we will sum %d to %d\n", arr[startpart], arr[endpart - 1]);
 
     // Generate the sum
-    for (int i = arr[startpart] - 1; i < arr[endpart - 1] - 1; i++)
+    for (int i = arr[startpart] - 1; i < arr[endpart - 1]; i++)
     {
         current_thread_sum += arr[i];
     }
