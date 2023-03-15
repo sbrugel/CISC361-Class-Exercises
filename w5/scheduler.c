@@ -120,8 +120,9 @@ int main()
             int flag = 0; // indicate if a process was executed in the current quantum
             for (i = 0; i < num_processes; i++)
             {
-                // TODO: fix infinite loop here
-                printf("process %d with %d left\n", i, remaining[i]);
+                if (complete[i])
+                    continue;
+
                 // has it arrived? does it have any time left?
                 if (arrival_time[i] <= elapsed_time && remaining[i] > 0)
                 {
@@ -132,13 +133,12 @@ int main()
                         remaining[i] = 0;             // no more time left
                         flag = 1;                     // we ran a process
                     }
+                    else
+                    {
+                        elapsed_time += time_quantum;
+                        remaining[i] -= time_quantum;
+                    }
                 }
-                else
-                {
-                    elapsed_time += time_quantum;
-                    remaining[i] -= time_quantum;
-                }
-
                 // update wait/turnaround for this process
                 wait_times[i] = elapsed_time - burst_time[i] - arrival_time[i];
                 turnaround_times[i] = elapsed_time - arrival_time[i];
@@ -149,11 +149,17 @@ int main()
                     complete[i] = true;
                 }
             }
+            if (flag == 0)
+            {
+                elapsed_time++;
+            }
         }
 
         // results
         for (i = 0; i < num_processes; i++)
         {
+            average_wait_time += wait_times[i];
+            average_turnaround_time += turnaround_times[i];
             printf("%d\t\t\t%d\t\t\t%d\t\t%d\t\t%d\n", i + 1, arrival_time[i], burst_time[i], turnaround_times[i], wait_times[i]);
         }
     }
