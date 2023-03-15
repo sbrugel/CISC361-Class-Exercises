@@ -127,11 +127,11 @@ int main()
                 if (arrival_time[i] <= elapsed_time && remaining[i] > 0)
                 {
                     // execute process
+                    flag = 1;
                     if (remaining[i] <= time_quantum)
                     {
                         elapsed_time += remaining[i]; // finish up this process
                         remaining[i] = 0;             // no more time left
-                        flag = 1;                     // we ran a process
                     }
                     else
                     {
