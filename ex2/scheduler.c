@@ -105,7 +105,8 @@ int main()
 
         for (i = 0; i < num_processes; i++)
         {
-            // TODO: sort processes by something
+            // TODO: sort processes by something(?)
+            // TODO: priority based scheduling
 
             for (int j = 0; j < num_processes; j++) // set initial values of the above arrays
             {
