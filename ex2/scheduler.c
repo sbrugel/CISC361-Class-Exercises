@@ -17,15 +17,17 @@ int main()
 {
     // Initialize variables
     int i = 0, num_processes = 0, total_time = 0, x, output_flag = 0, time_quantum = 0;
-    int wait_time = 0, turnaround_time = 0, arrival_time[10], burst_time[10], temp[10];
+    int wait_time = 0, turnaround_time = 0, arrival_time[10], burst_time[10], priority[10];
     int wait_times[num_processes], turnaround_times[num_processes]; // new line by Simon
     float average_wait_time = 0, average_turnaround_time = 0;
+
     bool round_robin_algorithm = true;
+    bool priority_enabled = true; // for round robin
+
     for (i = 0; i < 10; i++)
     {
         arrival_time[i] = 0;
         burst_time[i] = 0;
-        temp[i] = 0;
     }
 
     // Define Number of Processes
@@ -48,9 +50,14 @@ int main()
 
         printf("Burst Time (>0):\t");
         scanf("%d", &burst_time[i]);
-        temp[i] = burst_time[i];
 
-        if (arrival_time[i] < 0 && burst_time[i] < 1)
+        if (priority_enabled && round_robin_algorithm)
+        {
+            printf("Priority (>-1):\t");
+            scanf("%d", &priority[i]);
+        }
+
+        if (arrival_time[i] < 0 && burst_time[i] < 1 && (priority[i] < 0 && priority_enabled))
         {
             printf("Incorrect Values Entered");
             i--;
@@ -106,7 +113,6 @@ int main()
         for (i = 0; i < num_processes; i++)
         {
             // TODO: sort processes by something(?)
-            // TODO: priority based scheduling
 
             for (int j = 0; j < num_processes; j++) // set initial values of the above arrays
             {
@@ -121,25 +127,41 @@ int main()
             int flag = 0; // indicate if a process was executed in the current quantum
             for (i = 0; i < num_processes; i++)
             {
-                if (complete[i])
+                // has it arrived? does it have any time left?
+                if (complete[i] || arrival_time[i] > elapsed_time || remaining[i] <= 0)
                     continue;
 
-                // has it arrived? does it have any time left?
-                if (arrival_time[i] <= elapsed_time && remaining[i] > 0)
+                // check if other processes can take over here
+                if (priority_enabled)
                 {
-                    // execute process
-                    flag = 1;
-                    if (remaining[i] <= time_quantum)
+                    // TODO finish priority scheduler
+                    // TODO may need to change elapsed time calculation
+                    // TODO maybe move this into the elapsed time loopbelow
+                    for (int j = 0; j < num_processes; j++)
                     {
-                        elapsed_time += remaining[i]; // finish up this process
-                        remaining[i] = 0;             // no more time left
-                    }
-                    else
-                    {
-                        elapsed_time += time_quantum;
-                        remaining[i] -= time_quantum;
+                        printf("%d %d\n", priority[j], priority[i]);
+                        if (priority[j] > priority[i] && elapsed_time == arrival_time[j])
+                        {
+                            printf("switching to %d\n", j);
+                            i = j - 1;
+                            continue;
+                        }
                     }
                 }
+
+                // execute process
+                flag = 1;
+                if (remaining[i] <= time_quantum)
+                {
+                    elapsed_time += remaining[i]; // finish up this process
+                    remaining[i] = 0;             // no more time left
+                }
+                else
+                {
+                    elapsed_time += time_quantum;
+                    remaining[i] -= time_quantum;
+                }
+
                 // update wait/turnaround for this process
                 wait_times[i] = elapsed_time - burst_time[i] - arrival_time[i];
                 turnaround_times[i] = elapsed_time - arrival_time[i];
