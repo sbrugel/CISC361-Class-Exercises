@@ -30,11 +30,16 @@ void *producer(void *arg)
     for (int i = 0; i < MAX_ITEMS_TO_PRODUCE; i++)
     {
         item = rand();
+        sem_wait(&empty);           // wait for empty slot in buffer
+        pthread_mutex_lock(&mutex); // start of critical section
 
-        // start of critical section
+        buffer[in] = item;
         printf("Producer %d: Inserted item %d into index %d\n", current_thread_data->thread_number, item,
                in);
-        // end of critical section
+        in = (in + 1) % BUFFER_SIZE;
+
+        pthread_mutex_unlock(&mutex); // end of critical section
+        sem_post(&full);              // signal that a slot in buffer is now full
     }
     return NULL;
 }
@@ -42,12 +47,19 @@ void *producer(void *arg)
 void *consumer(void *arg)
 {
     arg_data *current_thread_data = (arg_data *)arg;
+    int item;
     for (int i = 0; i < MAX_ITEMS_TO_CONSUME; i++)
     {
-        // TODO: fix error here
-        // start of critical section
-        printf("Consumer %d: Removed item %d from index %d\n", current_thread_data->thread_number, item, out);
-        // end of critical section
+        sem_wait(&full);            // wait for a full slot in buffer
+        pthread_mutex_lock(&mutex); // start of critical section
+
+        item = buffer[out];
+        printf("Consumer %d: Removed item %d from index %d\n", current_thread_data->thread_number,
+               item, out);
+        out = (out + 1) % BUFFER_SIZE;
+
+        pthread_mutex_unlock(&mutex); // end of critical section
+        sem_post(&empty);             // signal that slot in buffer is now empty
     }
     return NULL;
 }
